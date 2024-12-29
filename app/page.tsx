@@ -1,6 +1,7 @@
 
 import MessageForm from "./components/MessageForm";
 import MessageList from "./components/MessageList";
+export const revalidate = 30; 
 export default function Home() {
 
   return (
