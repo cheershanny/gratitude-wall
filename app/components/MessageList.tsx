@@ -4,7 +4,7 @@ import MessageItem from "./MessageItem";
 import { Message } from "@/types/message";
 
 const MessageList = async () => {
-  const messages = await prisma.message.findMany({
+  const messages: Message[] = await prisma.message.findMany({
     orderBy: {
       createdAt: "desc",
     },
@@ -17,7 +17,7 @@ const MessageList = async () => {
 
       {messages.length > 0 ? (
         <ul className="space-y-4">
-          {messages.map((message) => (
+          {messages.map((message: Message) => (
             <MessageItem key={message.id} message={message} />
           ))}
         </ul>
