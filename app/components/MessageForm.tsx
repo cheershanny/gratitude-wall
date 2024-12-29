@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 const messageSchema = z.object({
   message: z.string().min(1, "Message is required"),
@@ -20,9 +21,10 @@ const MessageForm = () => {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm<MessageForm>({
     resolver: zodResolver(messageSchema),
+    mode: "onChange",
   });
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState("");
@@ -30,6 +32,7 @@ const MessageForm = () => {
 
   const onSubmit = async (data: MessageForm) => {
     setSubmitting(true);
+    setErrorMessage("");
     try {
       const response = await fetch("/api/messages", {
         method: "POST",
@@ -38,32 +41,43 @@ const MessageForm = () => {
         },
         body: JSON.stringify(data),
       });
-      if (response.ok) {
-        reset();
-        router.refresh();
-      } else {
-        throw new Error("Failed to create message");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create message");
       }
-    } catch {
-      setErrorMessage("An unexpected error occurred");
+
+      reset();
+      router.refresh();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "An unexpected error occurred"
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-xl mx-auto">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="max-w-xl mx-auto"
+    >
       {errorMessage && (
-        <div className="alert alert-error mb-5">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="alert alert-error mb-5"
+        >
           <div>
             <span>{errorMessage}</span>
           </div>
-        </div>
+        </motion.div>
       )}
 
-      <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
+      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <div>
-          <label className="text-xl font-bold">Your Name</label>
+          <label className="text-xl font-bold block mb-2">Your Name</label>
           <input
             className="input input-bordered w-full"
             placeholder="Your name (optional)"
@@ -71,26 +85,28 @@ const MessageForm = () => {
           />
         </div>
         <div>
-        <label className="text-xl font-bold">Your Gratitude</label>
+          <label className="text-xl font-bold block mb-2">Your Gratitude</label>
           <textarea
-            className="textarea textarea-bordered w-full"
-            placeholder="Something you're greateful about..."
-            {...register("message", { required: "Message is required" })}
-          ></textarea>
+            className={`textarea textarea-bordered w-full min-h-[100px] ${
+              errors.message ? "textarea-error" : ""
+            }`}
+            placeholder="Share something you're grateful for..."
+            {...register("message")}
+          />
           {errors.message && (
-            <p className="text-red-500 text-sm">{errors.message.message}</p>
+            <p className="text-error text-sm mt-1">{errors.message.message}</p>
           )}
         </div>
 
         <button
           type="submit"
-          className={`btn text-xl w-full ${isSubmitting ? "loading" : ""}`}
-          disabled={isSubmitting}
+          className={`btn btn-primary w-full ${isSubmitting ? "loading" : ""}`}
+          disabled={isSubmitting || !isValid}
         >
-          Add
+          {isSubmitting ? "Sharing..." : "Share Gratitude"}
         </button>
       </form>
-    </div>
+    </motion.div>
   );
 };
 

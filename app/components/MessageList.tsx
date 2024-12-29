@@ -1,5 +1,7 @@
 import prisma from "@/prisma/client";
 import React from "react";
+import MessageItem from "./MessageItem";
+import { Message } from "@/types/message";
 
 const MessageList = async () => {
   const messages = await prisma.message.findMany({
@@ -14,22 +16,19 @@ const MessageList = async () => {
       </h1>
 
       {messages.length > 0 ? (
-        <ul>
+        <ul className="space-y-4">
           {messages.map((message) => (
-            <li key={message.id}>
-              <strong>
-                {message.name ? `${message.name}:` : `Anonymous ${message.id}:`}
-              </strong>{" "}
-              {message.message} <br />
-              <small>{new Date(message.createdAt).toLocaleString()}</small>
-            </li>
+            <MessageItem key={message.id} message={message} />
           ))}
         </ul>
       ) : (
-        <p>No messages available.</p>
+        <p className="text-center text-gray-600">
+          Be the first to share your gratitude!
+        </p>
       )}
     </div>
   );
 };
+export const revalidate = 30;
 
 export default MessageList;
