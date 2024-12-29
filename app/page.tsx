@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import MessageForm from "./components/MessageForm";
 import MessageList from "./components/MessageList";
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col justify-center items-center p-4">
