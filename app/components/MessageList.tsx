@@ -4,11 +4,20 @@ import MessageItem from "./MessageItem";
 import { Message } from "@/types/message";
 
 const MessageList = async () => {
-  const messages: Message[] = await prisma.message.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  let messages: Message[] = [];
+  
+  try {
+    await prisma.$connect();
+    messages = await prisma.message.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+  } finally {
+    await prisma.$disconnect();
+  }
   return (
     <div>
       <h1 className="text-2xl font-bold text-center text-gray-800 mt-8 mb-4">
