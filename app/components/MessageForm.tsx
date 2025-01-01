@@ -38,7 +38,7 @@ const MessageForm = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          'Cache-Control': 'no-cache'
+          "Cache-Control": "no-cache",
         },
         body: JSON.stringify(data),
       });
@@ -49,9 +49,6 @@ const MessageForm = () => {
 
       reset();
       router.refresh();
-      setTimeout(() => {
-        router.refresh();
-      }, 100);
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "An unexpected error occurred"
