@@ -1,12 +1,14 @@
 'use client';
 import { Message } from "@/types/message";
 import { motion } from "framer-motion"; 
+import { formatDistanceToNow } from 'date-fns';
 
 interface Props {
   message: Message;
 }
 
 const MessageItem = ({ message }: Props) => {
+  
   return (
     <motion.li
       initial={{ opacity: 0, y: 20 }}
@@ -18,7 +20,7 @@ const MessageItem = ({ message }: Props) => {
           {message.name ? message.name : `Anonymous ${message.id}`}
         </strong>
         <small className="text-gray-500">
-          {new Date(message.createdAt).toLocaleString()}
+        {formatDistanceToNow(new Date(message.createdAt), { addSuffix: true })}
         </small>
       </div>
       <p className="mt-2 text-gray-700">{message.message}</p>
